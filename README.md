@@ -18,9 +18,11 @@ samples, guidance on mobile development, and a full API reference.
 
 # emulación en el celular 
 modo debbuger activado en el celular 
-- paso1: adb tcpip 5555
+- paso1: adb devices
+ 
+- paso2: adb tcpip 5555
 
-- paso2: adb connect 192.168.0.14(esta es la ip de mi celu se cambia de acuerdo al movil):5555   
+- paso3: adb connect 192.168.0.14(esta es la ip de mi celu se cambia de acuerdo al movil):5555   
 
 - paso3: flutter run
 

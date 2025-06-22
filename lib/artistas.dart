@@ -36,7 +36,7 @@ class _ArtistasPageState extends State<ArtistasPage> {
     return Scaffold(
       appBar: AppBar(title: Text('Artistas')),
       body: ListView(
-        padding: const EdgeInsets.all(206),
+        padding: const EdgeInsets.all(50),
         children: [
           buildArtistaCard(
             nombre: 'Néstor Garnica',
