@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'dart:typed_data';
+
 
 class SimulacionPagoPage extends StatefulWidget {
   final Map<String, String> entrada;
@@ -23,8 +24,10 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
   String codigo = '';
   bool pagado = false;
 
-  void generarPDF() async {
-    final pdf = pw.Document();
+  late pw.Document pdf;
+
+  Future<Uint8List> generarPDFBytes() async {
+    pdf = pw.Document();
 
     final logoData = await rootBundle.load('assets/images/logos/sandrixEIRL.png');
     final logoImage = pw.MemoryImage(logoData.buffer.asUint8List());
@@ -36,7 +39,7 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
           children: [
             pw.Center(child: pw.Image(logoImage, width: 120)),
             pw.SizedBox(height: 16),
-            pw.Text(r'$andrix Eventos & Producciones EIRL.',
+            pw.Text('Sandrix Eventos & Producciones EIRL',
                 style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 16),
             pw.Text('Comprobante de Pago'),
@@ -53,10 +56,10 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
       ),
     );
 
-    await Printing.layoutPdf(onLayout: (format) async => pdf.save());
+    return pdf.save();
   }
 
-  void enviarPorWhatsApp() async {
+  void enviarPDFPorWhatsapp() async {
     final nro = _whatsappController.text.trim();
     if (nro.isEmpty) {
       if (!mounted) return;
@@ -66,27 +69,13 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
       return;
     }
 
-    final mensaje = Uri.encodeComponent('''
-🎫 *Comprobante Sandrix Eventos S.A*
+    final bytes = await generarPDFBytes();
 
-Entrada: ${widget.entrada['tipo']}
-Precio: ${widget.entrada['precio']}
-Beneficio: ${widget.entrada['beneficio']}
-Tarjeta: **** ${numero.substring(numero.length - 4)}
-Nombre del Titular: $nombre
-Fecha: ${DateTime.now()}
-''');
-
-    final url = 'https://wa.me/$nro?text=$mensaje';
-
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-    } else {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No se pudo abrir WhatsApp')),
-      );
-    }
+    // Esta función abre el menú de compartir con WhatsApp como opción
+    await Printing.sharePdf(
+      bytes: bytes,
+      filename: 'comprobante_sandrix.pdf',
+    );
   }
 
   @override
@@ -107,8 +96,7 @@ Fecha: ${DateTime.now()}
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('✅ ¡Pago Exitoso!',
-                        style: TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold)),
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                     SizedBox(height: 16),
                     Text('Entrada: ${widget.entrada['tipo']}'),
                     Text('Precio: ${widget.entrada['precio']}'),
@@ -135,29 +123,18 @@ Fecha: ${DateTime.now()}
                             ElevatedButton.icon(
                               icon: Icon(Icons.picture_as_pdf),
                               label: Text('Descargar Comprobante PDF'),
-                              onPressed: generarPDF,
+                              onPressed: () async {
+                                final bytes = await generarPDFBytes();
+                                await Printing.layoutPdf(
+                                  onLayout: (format) async => bytes,
+                                );
+                              },
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    /// CARD: Enviar por WhatsApp
-                    Card(
-                      elevation: 4,
-                      margin: EdgeInsets.symmetric(vertical: 8),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            Text('📱 Enviar por WhatsApp',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16)),
-                            SizedBox(height: 8),
+                            SizedBox(height: 12),
                             TextField(
                               controller: _whatsappController,
                               decoration: InputDecoration(
-                                labelText: 'Número de WhatsApp (ej: 3855123456)',
+                                labelText: 'Número de WhatsApp',
                                 prefixIcon: Icon(Icons.phone),
                                 border: OutlineInputBorder(),
                               ),
@@ -165,9 +142,9 @@ Fecha: ${DateTime.now()}
                             ),
                             SizedBox(height: 12),
                             ElevatedButton.icon(
-                              icon: Icon(Icons.send),
-                              label: Text('Enviar por WhatsApp'),
-                              onPressed: enviarPorWhatsApp,
+                              icon: Icon(Icons.share),
+                              label: Text('Compartir por WhatsApp'),
+                              onPressed: enviarPDFPorWhatsapp,
                             ),
                           ],
                         ),
@@ -177,7 +154,7 @@ Fecha: ${DateTime.now()}
                 ),
               )
 
-            /// CARD: Ingreso de datos de tarjeta
+            /// CARD: Ingreso de datos
             : Card(
                 elevation: 4,
                 margin: EdgeInsets.symmetric(vertical: 8),

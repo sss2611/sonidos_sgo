@@ -6,7 +6,7 @@ import 'artistas.dart';
 import 'entradas.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -30,7 +30,6 @@ class MyApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
-
   void getNext() {
     current = WordPair.random();
     notifyListeners();
@@ -56,44 +55,45 @@ class HexagonClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     final w = size.width;
     final h = size.height;
-    final path = Path()
-      ..moveTo(w * 0.5, 0)
-      ..lineTo(w, h * 0.25)
-      ..lineTo(w, h * 0.75)
-      ..lineTo(w * 0.5, h)
-      ..lineTo(0, h * 0.75)
-      ..lineTo(0, h * 0.25)
+    final dx = w / 2;
+    final dy = h / 4;
+
+    return Path()
+      ..moveTo(dx, 0) // top center
+      ..lineTo(w, dy) // top right
+      ..lineTo(w, dy * 3) // bottom right
+      ..lineTo(dx, h) // bottom center
+      ..lineTo(0, dy * 3) // bottom left
+      ..lineTo(0, dy) // top left
       ..close();
-    return path;
   }
 
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
 
-// Botón con forma de hexágono
+// Botón hexagonal con ícono y acción
 Widget hexButton(IconData icon, VoidCallback onPressed) {
   return GestureDetector(
     onTap: onPressed,
     child: ClipPath(
       clipper: HexagonClipper(),
       child: Container(
-        width: 90,
-        height: 90,
+        width: 100,
+        height: 100,
         decoration: BoxDecoration(
-          color: Colors.transparent,
+          color: Colors.transparent, 
           boxShadow: [
             BoxShadow(
-              color: const Color.fromARGB(77, 0, 0, 0),
-              blurRadius: 6,
-              spreadRadius: 2,
+              color: Colors.black.withAlpha(77),
+              blurRadius: 10,
               offset: Offset(4, 4),
             ),
           ],
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.transparent,
+           color: Colors.white.withAlpha(26),
           ),
           child: Center(
             child: Icon(icon, size: 36, color: Colors.white),
@@ -104,59 +104,66 @@ Widget hexButton(IconData icon, VoidCallback onPressed) {
   );
 }
 
+
+
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          Image.asset(
-            "lib/assets/images/festival.png",
-            width: screenWidth,
-            height: screenHeight,
-            fit: BoxFit.contain,
-          ),
-          SafeArea(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  SizedBox(height: screenHeight * 0.58),
+    // Lista de íconos y sus respectivas acciones
+    final List<Map<String, dynamic>> botones = [
+      {
+        'icon': Icons.person,
+        'action': () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ArtistasPage()),
+            )
+      },
+      {
+        'icon': Icons.schedule,
+        'action': () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CronogramaPage()),
+            )
+      },
+      {'icon': Icons.location_on, 'action': () => launchMaps()},
+    ];
 
-                  Align(
-                    alignment: Alignment.center,
-                    child: hexButton(Icons.person, () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ArtistasPage()),
-                      );
-                    }),
+ return Scaffold(
+  body: Stack(
+    children: [
+      Image.asset(
+        "lib/assets/images/festival.png",
+        width: double.infinity,
+        height: screenHeight,
+        fit: BoxFit.cover,
+      ),
+      SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 40, left: 30),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(botones.length, (i) {
+                final offsetX = (i % 2 == 0) ? 0.0 : 30.0; // crea la forma >
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Transform.translate(
+                    offset: Offset(offsetX, 0),
+                    child: hexButton(
+                      botones[i]['icon'],
+                      botones[i]['action'],
+                    ),
                   ),
-                  SizedBox(height: screenHeight * 0.08),
-                  Align(
-                    alignment: Alignment.center,
-                    child: hexButton(Icons.schedule, () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => CronogramaPage()),
-                      );
-                    }),
-                  ),
-                  SizedBox(height: screenHeight * 0.08),
-                  Align(
-                    alignment: Alignment.center,
-                    child: hexButton(Icons.location_on, () {
-                      launchMaps();
-                    }),
-                  ),
-                ],
-              ),
+                );
+              }),
             ),
           ),
-        ],
+        ),
       ),
-    );
+    ],
+  ),
+);
   }
 }
