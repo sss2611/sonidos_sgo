@@ -16,7 +16,7 @@ For help getting started with Flutter development, view the
 samples, guidance on mobile development, and a full API reference.
 
 
-# emulacion en el celular 
+# emulación en el celular 
 modo debbuger activado en el celular 
 - paso1: adb tcpip 5555
 
@@ -29,8 +29,7 @@ modo debbuger activado en el celular
 - flutter pub get
 - flutter run
 
-## Inicial la emulación desde el dispositivo
-## configurado en android studio
+## Inicial la emulación desde el dispositivo configurado en android studio
 
 - flutter emulators --launch Pixel_6a
 - flutter devices
