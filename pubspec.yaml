@@ -26,6 +26,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
 
   flutter_lints: ^2.0.0
 
@@ -33,9 +34,20 @@ flutter:
   uses-material-design: true
   assets:
     - lib/assets/images/
-    - lib/assets/logos/lohany.jpg
-    - lib/audio/
-    - lib/assets/images/nestor.png
-    - lib/assets/images/dani.png
-    - lib/assets/images/monde.png
-    - lib/assets/logos/sandrixEIRL.jpg
+    - lib/assets/audio/
+    - lib/assets/logos/
+    # - lib/assets/images/
+    # - lib/assets/audio/
+    # - lib/assets/logos/lohany.jpg
+    # - lib/assets/images/nestor.png
+    # - lib/assets/images/dani.png
+    # - lib/assets/images/monde.png
+    # - lib/assets/audio/nestor.mp3
+    # - lib/assets/audio/monde.mp3
+    # - lib/assets/audio/dani.mp3
+    # - lib/assets/logos/sandrixEIRL.jpg
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "lib/assets/logos/lohany.jpg"
