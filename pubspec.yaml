@@ -11,7 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  audioplayers: ^5.2.0
+  audioplayers: ^5.2.1
     
 
   english_words: ^4.0.0
@@ -33,10 +33,10 @@ flutter:
   uses-material-design: true
   assets:
     - lib/assets/images/
-    - lib/assets/audio/
+    - lib/audio/nestor.mp3
+    - lib/audio/dani.mp3
+    - lib/audio/monde.mp3
+    - lib/assets/images/nestor.png
+    - lib/assets/images/dani.png
+    - lib/assets/images/monde.png
     - lib/assets/logos/sandrixEIRL.jpg
-
-  # fonts:
-  #   - family: Roboto
-  #     fonts:
-  #       - asset: assets/fonts/Roboto-Regular.ttf

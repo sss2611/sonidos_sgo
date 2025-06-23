@@ -71,13 +71,13 @@ Widget hexButton(IconData icon, VoidCallback onPressed) {
     child: ClipPath(
       clipper: HexagonClipper(),
       child: Container(
-        width: 65,
-        height: 65,
+        width: 55,
+        height: 55,
         decoration: BoxDecoration(
-          color: const Color.fromARGB(0, 23, 26, 19),
+          color: const Color.fromARGB(0, 72, 73, 135),
           boxShadow: [
             BoxShadow(
-              color: const Color.fromARGB(255, 168, 15, 15).withAlpha(77),
+              color: const Color.fromARGB(255, 79, 3, 3).withAlpha(77),
               blurRadius: 10,
               offset: Offset(4, 4),
             ),
@@ -85,10 +85,11 @@ Widget hexButton(IconData icon, VoidCallback onPressed) {
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withAlpha(26),
+            color: const Color.fromARGB(255, 208, 5, 5).withAlpha(26),
           ),
           child: Center(
-            child: Icon(icon, size: 36, color: Colors.white),
+            child: Icon(icon,
+                size: 36, color: const Color.fromARGB(255, 189, 12, 12)),
           ),
         ),
       ),
@@ -122,7 +123,7 @@ class MyHomePage extends StatelessWidget {
         children: [
           SizedBox.expand(
             child: Image.asset(
-              "lib/assets/images/festival.png",
+              "lib/assets/images/festival3.png",
               fit: BoxFit.cover,
               alignment: Alignment.center,
             ),
@@ -130,13 +131,13 @@ class MyHomePage extends StatelessWidget {
           SafeArea(
             child: Center(
               child: Padding(
-                padding: const EdgeInsets.only(top: 190, left: 30),
+                padding: const EdgeInsets.only(top: 0.03, left: 0.2),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: List.generate(botones.length, (i) {
-                    final offsetX = (i % 2 == 0) ? 7.0 : 60.0;
+                    final offsetX = (i % 2 == 0) ? 0.1 : 40.0;
                     return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 1.4),
+                      padding: const EdgeInsets.symmetric(vertical: 0.4),
                       child: Transform.translate(
                         offset: Offset(offsetX, 0),
                         child: hexButton(

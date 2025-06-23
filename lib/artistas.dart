@@ -17,10 +17,21 @@ class _ArtistasPageState extends State<ArtistasPage> {
   }
 
   Future<void> reproducir(String path) async {
-    await _audioPlayer.stop();
-    setState(() => _reproduciendo = path);
-    await _audioPlayer.play(AssetSource(path));
+    try {
+      await _audioPlayer.stop();
+      setState(() => _reproduciendo = path);
+      await _audioPlayer.play(AssetSource(path));
+      print('Reproduciendo $path');
+    } catch (e) {
+      print('Error al reproducir: $e');
+    }
   }
+
+  // Future<void> reproducir(String path) async {
+  //   await _audioPlayer.stop();
+  //   setState(() => _reproduciendo = path);
+  //   await _audioPlayer.play(AssetSource(path));
+  // }
 
   Future<void> pausar() async {
     await _audioPlayer.pause();
@@ -42,14 +53,14 @@ class _ArtistasPageState extends State<ArtistasPage> {
             nombre: 'Néstor Garnica',
             descripcion: 'Violinista y cantante de folclore argentino.',
             imagen: 'lib/assets/images/nestor.png',
-            audio: 'audio/nestor.mp3',
+            audio: 'lib/audio/nestor.mp3',
           ),
           SizedBox(height: 10),
           buildArtistaCard(
             nombre: 'Dany Hoyos',
             descripcion: 'Es marca registrada en el género de la guaracha.',
             imagen: 'lib/assets/images/dani.png',
-            audio: 'audio/dani.mp3',
+            audio: 'lib/audio/dani.mp3',
           ),
           SizedBox(height: 10),
           buildArtistaCard(
@@ -57,7 +68,7 @@ class _ArtistasPageState extends State<ArtistasPage> {
             descripcion:
                 'Una fusión única de ritmos santiagueños y melodías francesas.',
             imagen: 'lib/assets/images/monde.png',
-            audio: 'audio/monde.mp3',
+            audio: 'lib/audio/monde.mp3',
           ),
         ],
       ),
@@ -118,7 +129,7 @@ class _ArtistasPageState extends State<ArtistasPage> {
                         icon: Icon(
                           Icons.play_arrow,
                           color: estaReproduciendo
-                              ? Colors.greenAccent
+                              ? const Color.fromARGB(255, 23, 221, 63)
                               : Colors.white,
                         ),
                         onPressed: () => reproducir(audio),
