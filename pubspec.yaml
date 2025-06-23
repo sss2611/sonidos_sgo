@@ -21,6 +21,7 @@ dependencies:
   printing: ^5.11.0
   path_provider: ^2.0.14
   share_plus: ^7.0.2
+  font_awesome_flutter: ^10.7.0
 
 dev_dependencies:
   flutter_test:
@@ -33,6 +34,7 @@ flutter:
   assets:
     - lib/assets/images/
     - lib/assets/audio/
+    - lib/assets/logos/sandrixEIRL.jpg
 
   # fonts:
   #   - family: Roboto

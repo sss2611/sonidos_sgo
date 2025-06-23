@@ -19,7 +19,7 @@ class _ArtistasPageState extends State<ArtistasPage> {
   Future<void> reproducir(String path) async {
     await _audioPlayer.stop();
     setState(() => _reproduciendo = path);
-    await _audioPlayer.play(DeviceFileSource(path));
+    await _audioPlayer.play(AssetSource(path));
   }
 
   Future<void> pausar() async {
@@ -36,20 +36,20 @@ class _ArtistasPageState extends State<ArtistasPage> {
     return Scaffold(
       appBar: AppBar(title: Text('Artistas')),
       body: ListView(
-        padding: const EdgeInsets.all(50),
+        padding: const EdgeInsets.all(16),
         children: [
           buildArtistaCard(
             nombre: 'Néstor Garnica',
             descripcion: 'Violinista y cantante de folclore argentino.',
             imagen: 'lib/assets/images/nestor.png',
-            audio: 'lib/assets/audio/nestor.mp3',
+            audio: 'audio/nestor.mp3',
           ),
           SizedBox(height: 10),
           buildArtistaCard(
             nombre: 'Dany Hoyos',
             descripcion: 'Es marca registrada en el género de la guaracha.',
             imagen: 'lib/assets/images/dani.png',
-            audio: 'lib/assets/audio/dani.mp3',
+            audio: 'audio/dani.mp3',
           ),
           SizedBox(height: 10),
           buildArtistaCard(
@@ -57,7 +57,7 @@ class _ArtistasPageState extends State<ArtistasPage> {
             descripcion:
                 'Una fusión única de ritmos santiagueños y melodías francesas.',
             imagen: 'lib/assets/images/monde.png',
-            audio: 'lib/assets/audio/monde.mp3',
+            audio: 'audio/monde.mp3',
           ),
         ],
       ),
@@ -70,6 +70,8 @@ class _ArtistasPageState extends State<ArtistasPage> {
     required String imagen,
     required String audio,
   }) {
+    final bool estaReproduciendo = _reproduciendo == audio;
+
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -88,11 +90,16 @@ class _ArtistasPageState extends State<ArtistasPage> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    imagen,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: 200,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width - 32,
+                      maxHeight: 200,
+                    ),
+                    child: Image.asset(
+                      imagen,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                    ),
                   ),
                 ),
                 Container(
@@ -108,7 +115,12 @@ class _ArtistasPageState extends State<ArtistasPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.play_arrow, color: Colors.white),
+                        icon: Icon(
+                          Icons.play_arrow,
+                          color: estaReproduciendo
+                              ? Colors.greenAccent
+                              : Colors.white,
+                        ),
                         onPressed: () => reproducir(audio),
                       ),
                       IconButton(
@@ -119,14 +131,6 @@ class _ArtistasPageState extends State<ArtistasPage> {
                         icon: Icon(Icons.stop, color: Colors.white),
                         onPressed: detener,
                       ),
-                      if (_reproduciendo == audio)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Text(
-                            'Reproduciendo...',
-                            style: TextStyle(color: Colors.greenAccent),
-                          ),
-                        ),
                     ],
                   ),
                 ),

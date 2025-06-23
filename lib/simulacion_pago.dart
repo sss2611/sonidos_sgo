@@ -3,7 +3,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:typed_data';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class SimulacionPagoPage extends StatefulWidget {
   final Map<String, String> entrada;
@@ -24,32 +24,47 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
   String codigo = '';
   bool pagado = false;
 
-  late pw.Document pdf;
-
   Future<Uint8List> generarPDFBytes() async {
-    pdf = pw.Document();
+    final pdf = pw.Document();
 
-    final logoData = await rootBundle.load('assets/images/logos/sandrixEIRL.png');
-    final logoImage = pw.MemoryImage(logoData.buffer.asUint8List());
+    // Intentar cargar el logo, pero continuar sin él si falla
+    pw.ImageProvider? logoImage;
+    try {
+      final logoData =
+          await rootBundle.load('lib/assets/logos/sandrixEIRL.jpg');
+      print('Logo cargado correctamente');
+      logoImage = pw.MemoryImage(logoData.buffer.asUint8List());
+    } catch (e) {
+      print('Logo no encontrado o error cargando: $e');
+    }
+
+    final numeroFinal =
+        numero.length >= 4 ? numero.substring(numero.length - 4) : '****';
+    final nombreFinal = nombre.isNotEmpty ? nombre : 'Nombre no especificado';
+    final tipoEntrada = widget.entrada['tipo'] ?? 'Entrada no definida';
+    final precioEntrada = widget.entrada['precio'] ?? '---';
+    final beneficioEntrada = widget.entrada['beneficio'] ?? '---';
 
     pdf.addPage(
       pw.Page(
         build: (context) => pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Center(child: pw.Image(logoImage, width: 120)),
+            if (logoImage != null)
+              pw.Center(child: pw.Image(logoImage, width: 120)),
             pw.SizedBox(height: 16),
             pw.Text('Sandrix Eventos & Producciones EIRL',
-                style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+                style:
+                    pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 16),
             pw.Text('Comprobante de Pago'),
             pw.Divider(),
-            pw.Text('Entrada: ${widget.entrada['tipo']}'),
-            pw.Text('Precio: ${widget.entrada['precio']}'),
-            pw.Text('Beneficio: ${widget.entrada['beneficio']}'),
+            pw.Text('Entrada: $tipoEntrada'),
+            pw.Text('Precio: $precioEntrada'),
+            pw.Text('Beneficio: $beneficioEntrada'),
             pw.SizedBox(height: 12),
-            pw.Text('Tarjeta: **** **** **** ${numero.substring(numero.length - 4)}'),
-            pw.Text('Nombre del Titular: $nombre'),
+            pw.Text('Tarjeta: **** **** **** $numeroFinal'),
+            pw.Text('Nombre del Titular: $nombreFinal'),
             pw.Text('Fecha: ${DateTime.now()}'),
           ],
         ),
@@ -59,23 +74,31 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
     return pdf.save();
   }
 
+  void mostrarSnackBar(String mensaje) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(mensaje)),
+    );
+  }
+
   void enviarPDFPorWhatsapp() async {
     final nro = _whatsappController.text.trim();
     if (nro.isEmpty) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ingresá un número válido')),
-      );
+      mostrarSnackBar('Ingresá un número válido');
       return;
     }
 
-    final bytes = await generarPDFBytes();
-
-    // Esta función abre el menú de compartir con WhatsApp como opción
-    await Printing.sharePdf(
-      bytes: bytes,
-      filename: 'comprobante_sandrix.pdf',
-    );
+    try {
+      final bytes = await generarPDFBytes();
+      await Printing.sharePdf(
+        bytes: bytes,
+        filename: 'comprobante_sandrix.pdf',
+      );
+      mostrarSnackBar('Compartido exitosamente por WhatsApp');
+    } catch (e) {
+      mostrarSnackBar('Ocurrió un error al generar o compartir el PDF');
+      print('Error al compartir: $e');
+    }
   }
 
   @override
@@ -93,124 +116,99 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
         child: pagado
             ? SingleChildScrollView(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('✅ ¡Pago Exitoso!',
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                    Text('🎉 ¡Pago Exitoso!',
+                        style: TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold)),
                     SizedBox(height: 16),
-                    Text('Entrada: ${widget.entrada['tipo']}'),
-                    Text('Precio: ${widget.entrada['precio']}'),
-                    Text('Beneficio: ${widget.entrada['beneficio']}'),
-                    Text('Nombre del Titular: $nombre'),
+                    ElevatedButton.icon(
+                      icon: Icon(Icons.picture_as_pdf),
+                      label: Text('Ver/Descargar Comprobante PDF'),
+                      onPressed: () async {
+                        try {
+                          await Printing.layoutPdf(
+                            onLayout: (format) => generarPDFBytes(),
+                          );
+                        } catch (e) {
+                          mostrarSnackBar('No se pudo mostrar el PDF');
+                          print('Error mostrando PDF: $e');
+                        }
+                      },
+                    ),
                     SizedBox(height: 16),
-
-                    /// CARD: Comprobante PDF
-                    Card(
-                      elevation: 4,
-                      margin: EdgeInsets.symmetric(vertical: 8),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('📄 Comprobante generado:',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16)),
-                            SizedBox(height: 8),
-                            Text('• Tarjeta: **** **** **** ${numero.substring(numero.length - 4)}'),
-                            Text('• Fecha: ${DateTime.now()}'),
-                            SizedBox(height: 16),
-                            ElevatedButton.icon(
-                              icon: Icon(Icons.picture_as_pdf),
-                              label: Text('Descargar Comprobante PDF'),
-                              onPressed: () async {
-                                final bytes = await generarPDFBytes();
-                                await Printing.layoutPdf(
-                                  onLayout: (format) async => bytes,
-                                );
-                              },
-                            ),
-                            SizedBox(height: 12),
-                            TextField(
-                              controller: _whatsappController,
-                              decoration: InputDecoration(
-                                labelText: 'Número de WhatsApp',
-                                prefixIcon: Icon(Icons.phone),
-                                border: OutlineInputBorder(),
-                              ),
-                              keyboardType: TextInputType.phone,
-                            ),
-                            SizedBox(height: 12),
-                            ElevatedButton.icon(
-                              icon: Icon(Icons.share),
-                              label: Text('Compartir por WhatsApp'),
-                              onPressed: enviarPDFPorWhatsapp,
-                            ),
-                          ],
-                        ),
+                    TextField(
+                      controller: _whatsappController,
+                      decoration: InputDecoration(
+                        labelText: 'Número de WhatsApp',
+                        prefixIcon: Icon(FontAwesomeIcons.whatsapp,
+                            color: Color(0xFF25D366)),
+                        border: OutlineInputBorder(),
                       ),
+                      keyboardType: TextInputType.phone,
+                    ),
+                    SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      icon: Icon(Icons.share),
+                      label: Text('Compartir por WhatsApp'),
+                      onPressed: enviarPDFPorWhatsapp,
                     ),
                   ],
                 ),
               )
-
-            /// CARD: Ingreso de datos
-            : Card(
-                elevation: 4,
-                margin: EdgeInsets.symmetric(vertical: 8),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        Text('💳 Ingreso de Datos de Tarjeta',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16)),
-                        SizedBox(height: 16),
-                        Text('Pago para: ${widget.entrada['tipo']}'),
-                        SizedBox(height: 16),
-                        TextFormField(
-                          decoration: InputDecoration(labelText: 'Número de Tarjeta'),
-                          keyboardType: TextInputType.number,
-                          onSaved: (value) => numero = value ?? '',
-                          validator: (value) =>
-                              value!.length < 16 ? 'Debe tener al menos 16 dígitos' : null,
-                        ),
-                        TextFormField(
-                          decoration: InputDecoration(labelText: 'Nombre del Titular'),
-                          onSaved: (value) => nombre = value ?? '',
-                          validator: (value) =>
-                              value!.isEmpty ? 'Ingresá nombre del titular' : null,
-                        ),
-                        TextFormField(
-                          decoration: InputDecoration(labelText: 'Vencimiento (MM/AA)'),
-                          onSaved: (value) => vencimiento = value ?? '',
-                          validator: (value) =>
-                              value!.isEmpty ? 'Ingresá una fecha' : null,
-                        ),
-                        TextFormField(
-                          decoration: InputDecoration(labelText: 'Código de Seguridad'),
-                          keyboardType: TextInputType.number,
-                          onSaved: (value) => codigo = value ?? '',
-                          validator: (value) =>
-                              value!.length != 3 ? 'Debe tener 3 dígitos' : null,
-                        ),
-                        SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              _formKey.currentState!.save();
-                              setState(() {
-                                pagado = true;
-                              });
-                            }
-                          },
-                          child: Text('Confirmar Pago'),
-                        ),
-                      ],
+            : Form(
+                key: _formKey,
+                child: ListView(
+                  children: [
+                    Text('💳 Ingreso de Datos de Tarjeta',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
+                    SizedBox(height: 16),
+                    Text('Pago para: ${widget.entrada['tipo']}'),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      decoration:
+                          InputDecoration(labelText: 'Número de Tarjeta'),
+                      keyboardType: TextInputType.number,
+                      onSaved: (value) => numero = value ?? '',
+                      validator: (value) => value!.length < 16
+                          ? 'Debe tener al menos 16 dígitos'
+                          : null,
                     ),
-                  ),
+                    TextFormField(
+                      decoration:
+                          InputDecoration(labelText: 'Nombre del Titular'),
+                      onSaved: (value) => nombre = value ?? '',
+                      validator: (value) =>
+                          value!.isEmpty ? 'Ingresá nombre del titular' : null,
+                    ),
+                    TextFormField(
+                      decoration:
+                          InputDecoration(labelText: 'Vencimiento (MM/AA)'),
+                      onSaved: (value) => vencimiento = value ?? '',
+                      validator: (value) =>
+                          value!.isEmpty ? 'Ingresá una fecha' : null,
+                    ),
+                    TextFormField(
+                      decoration:
+                          InputDecoration(labelText: 'Código de Seguridad'),
+                      keyboardType: TextInputType.number,
+                      onSaved: (value) => codigo = value ?? '',
+                      validator: (value) =>
+                          value!.length != 3 ? 'Debe tener 3 dígitos' : null,
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          setState(() {
+                            pagado = true;
+                          });
+                        }
+                      },
+                      child: Text('Confirmar Pago'),
+                    ),
+                  ],
                 ),
               ),
       ),
