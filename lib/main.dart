@@ -151,6 +151,27 @@ class MyHomePage extends StatelessWidget {
               ),
             ),
           ),
+// BOTON DE ENLACE AL TP2
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: GestureDetector(
+              onTap: () async {
+                final Uri url =
+                    Uri.parse('https://sss2611.github.io/TP2_Programacion3/');
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                } else {
+                  throw 'No se pudo abrir $url';
+                }
+              },
+              child: Image.asset(
+                'lib/assets/logos/lohany.jpg',
+                width: 60,
+                height: 60,
+              ),
+            ),
+          ),
         ],
       ),
     );

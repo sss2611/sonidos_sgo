@@ -33,9 +33,8 @@ flutter:
   uses-material-design: true
   assets:
     - lib/assets/images/
-    - lib/audio/nestor.mp3
-    - lib/audio/dani.mp3
-    - lib/audio/monde.mp3
+    - lib/assets/logos/lohany.jpg
+    - lib/audio/
     - lib/assets/images/nestor.png
     - lib/assets/images/dani.png
     - lib/assets/images/monde.png
