@@ -40,6 +40,6 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "lib/assets/images/festival3.png"
+  image_path: "lib/assets/logos/colorida.png"
   adaptive_icon_background: "#221AB7FF"
-  adaptive_icon_foreground: "lib/assets/images/festival3.png"
+  adaptive_icon_foreground: "lib/assets/logos/colorida.png"

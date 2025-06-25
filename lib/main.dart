@@ -32,7 +32,7 @@ class MyAppState extends ChangeNotifier {}
 
 void launchMaps() async {
   final Uri uri = Uri.parse(
-    'https://www.google.com/maps/search/?api=1&query=Hipódromo+Santiago+del+Estero',
+    'https://maps.app.goo.gl/Z3GLp7XqevnKNBHQ6',
   );
   try {
     if (!await launchUrl(uri, mode: LaunchMode.platformDefault)) {
@@ -75,6 +75,7 @@ Widget hexButton(String label, IconData icon, VoidCallback onPressed,
           label,
           style: const TextStyle(
             color: Color.fromARGB(255, 41, 19, 130),
+            fontSize: 10,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -82,8 +83,8 @@ Widget hexButton(String label, IconData icon, VoidCallback onPressed,
     ClipPath(
       clipper: HexagonClipper(),
       child: Container(
-        width: 55,
-        height: 55,
+        width: 50,
+        height: 50,
         decoration: BoxDecoration(
           color: const Color.fromARGB(0, 72, 73, 135),
           boxShadow: [
@@ -115,6 +116,7 @@ Widget hexButton(String label, IconData icon, VoidCallback onPressed,
           label,
           style: const TextStyle(
             color: Color.fromARGB(255, 41, 19, 130),
+            fontSize: 10,
             fontWeight: FontWeight.bold,
           ),
         ),

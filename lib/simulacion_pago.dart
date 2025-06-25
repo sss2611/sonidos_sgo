@@ -17,6 +17,7 @@ class SimulacionPagoPage extends StatefulWidget {
 class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
   final _formKey = GlobalKey<FormState>();
   final _whatsappController = TextEditingController();
+  final _vencimientoController = TextEditingController(); // NUEVO
 
   String numero = '';
   String nombre = '';
@@ -24,15 +25,28 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
   String codigo = '';
   bool pagado = false;
 
+  @override
+  void initState() {
+    super.initState();
+
+    _vencimientoController.addListener(() {
+      final text = _vencimientoController.text;
+      if (text.length == 2 && !text.contains('/')) {
+        _vencimientoController.value = TextEditingValue(
+          text: '$text/',
+          selection: TextSelection.collapsed(offset: 3),
+        );
+      }
+    });
+  }
+
   Future<Uint8List> generarPDFBytes() async {
     final pdf = pw.Document();
 
-    // Intentara cargar el logo, pero continuar sin él si falla
     pw.ImageProvider? logoImage;
     try {
       final logoData =
           await rootBundle.load('lib/assets/logos/sandrixEIRL.jpg');
-      print('Logo cargado correctamente');
       logoImage = pw.MemoryImage(logoData.buffer.asUint8List());
     } catch (e) {
       print('Logo no encontrado o error cargando: $e');
@@ -76,9 +90,8 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
 
   void mostrarSnackBar(String mensaje) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensaje)),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(mensaje)));
   }
 
   void enviarPDFPorWhatsapp() async {
@@ -97,13 +110,13 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
       mostrarSnackBar('Compartido exitosamente por WhatsApp');
     } catch (e) {
       mostrarSnackBar('Ocurrió un error al generar o compartir el PDF');
-      print('Error al compartir: $e');
     }
   }
 
   @override
   void dispose() {
     _whatsappController.dispose();
+    _vencimientoController.dispose(); // NUEVO
     super.dispose();
   }
 
@@ -131,7 +144,6 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
                           );
                         } catch (e) {
                           mostrarSnackBar('No se pudo mostrar el comprobante');
-                          print('Error mostrando comprobante: $e');
                         }
                       },
                     ),
@@ -182,6 +194,7 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
                           value!.isEmpty ? 'Ingresá nombre del titular' : null,
                     ),
                     TextFormField(
+                      controller: _vencimientoController, // ASIGNADO
                       decoration: const InputDecoration(
                           labelText: 'Vencimiento (MM/AA)'),
                       keyboardType: TextInputType.number,
