@@ -11,7 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  audioplayers: ^5.2.1
+  just_audio: ^0.9.36
     
 
   english_words: ^4.0.0
@@ -36,18 +36,10 @@ flutter:
     - lib/assets/images/
     - lib/assets/audio/
     - lib/assets/logos/
-    # - lib/assets/images/
-    # - lib/assets/audio/
-    # - lib/assets/logos/lohany.jpg
-    # - lib/assets/images/nestor.png
-    # - lib/assets/images/dani.png
-    # - lib/assets/images/monde.png
-    # - lib/assets/audio/nestor.mp3
-    # - lib/assets/audio/monde.mp3
-    # - lib/assets/audio/dani.mp3
-    # - lib/assets/logos/sandrixEIRL.jpg
 
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "lib/assets/logos/lohany.jpg"
+  image_path: "lib/assets/images/festival3.png"
+  adaptive_icon_background: "#221AB7FF"
+  adaptive_icon_foreground: "lib/assets/images/festival3.png"

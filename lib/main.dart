@@ -65,10 +65,21 @@ class HexagonClipper extends CustomClipper<Path> {
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
 
-Widget hexButton(IconData icon, VoidCallback onPressed) {
-  return GestureDetector(
-    onTap: onPressed,
-    child: ClipPath(
+Widget hexButton(String label, IconData icon, VoidCallback onPressed,
+    {bool textBeforeIcon = false}) {
+  List<Widget> content = [
+    if (textBeforeIcon)
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Color.fromARGB(255, 41, 19, 130),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    ClipPath(
       clipper: HexagonClipper(),
       child: Container(
         width: 55,
@@ -77,7 +88,7 @@ Widget hexButton(IconData icon, VoidCallback onPressed) {
           color: const Color.fromARGB(0, 72, 73, 135),
           boxShadow: [
             BoxShadow(
-              color: const Color.fromARGB(255, 79, 3, 3).withAlpha(77),
+              color: const Color.fromARGB(255, 211, 199, 199).withAlpha(77),
               blurRadius: 10,
               offset: Offset(4, 4),
             ),
@@ -88,11 +99,33 @@ Widget hexButton(IconData icon, VoidCallback onPressed) {
             color: const Color.fromARGB(255, 208, 5, 5).withAlpha(26),
           ),
           child: Center(
-            child: Icon(icon,
-                size: 36, color: const Color.fromARGB(255, 189, 12, 12)),
+            child: Icon(
+              icon,
+              size: 36,
+              color: const Color.fromARGB(255, 189, 12, 12),
+            ),
           ),
         ),
       ),
+    ),
+    if (!textBeforeIcon)
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Color.fromARGB(255, 41, 19, 130),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+  ];
+
+  return GestureDetector(
+    onTap: onPressed,
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: content,
     ),
   );
 }
@@ -103,19 +136,28 @@ class MyHomePage extends StatelessWidget {
     final List<Map<String, dynamic>> botones = [
       {
         'icon': Icons.person,
+        'label': 'Artistas',
         'action': () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => ArtistasPage()),
-            )
+            ),
+        'textBeforeIcon': true, // texto antes del ícono
       },
       {
-        'icon': Icons.schedule,
+        'icon': Icons.local_activity,
+        'label': 'Entradas',
         'action': () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => CronogramaPage()),
-            )
+            ),
+        'textBeforeIcon': false,
       },
-      {'icon': Icons.location_on, 'action': () => launchMaps()},
+      {
+        'icon': Icons.location_on,
+        'label': 'Ubicación',
+        'action': () => launchMaps(),
+        'textBeforeIcon': true,
+      },
     ];
 
     return Scaffold(
@@ -131,19 +173,17 @@ class MyHomePage extends StatelessWidget {
           SafeArea(
             child: Center(
               child: Padding(
-                padding: const EdgeInsets.only(top: 0.03, left: 0.2),
+                padding: const EdgeInsets.only(top: 1, left: 12, right: 12),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: List.generate(botones.length, (i) {
-                    final offsetX = (i % 2 == 0) ? 0.1 : 40.0;
                     return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 0.4),
-                      child: Transform.translate(
-                        offset: Offset(offsetX, 0),
-                        child: hexButton(
-                          botones[i]['icon'],
-                          botones[i]['action'],
-                        ),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: hexButton(
+                        botones[i]['label'],
+                        botones[i]['icon'],
+                        botones[i]['action'],
+                        textBeforeIcon: botones[i]['textBeforeIcon'] ?? false,
                       ),
                     );
                   }),
@@ -151,7 +191,6 @@ class MyHomePage extends StatelessWidget {
               ),
             ),
           ),
-// BOTON DE ENLACE AL TP2
           Positioned(
             bottom: 20,
             right: 20,

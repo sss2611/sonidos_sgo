@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:just_audio/just_audio.dart';
 
 class ArtistasPage extends StatefulWidget {
   @override
@@ -9,15 +9,18 @@ class ArtistasPage extends StatefulWidget {
 class _ArtistasPageState extends State<ArtistasPage> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   String? _reproduciendo;
-  PlayerState? _playerState;
+  bool _estaReproduciendo = false;
 
   @override
   void initState() {
     super.initState();
-    _audioPlayer.onPlayerStateChanged.listen((PlayerState state) {
+    _audioPlayer.playerStateStream.listen((state) {
       if (mounted) {
         setState(() {
-          _playerState = state;
+          _estaReproduciendo = state.playing;
+          if (state.processingState == ProcessingState.completed) {
+            _reproduciendo = null;
+          }
         });
       }
     });
@@ -25,31 +28,27 @@ class _ArtistasPageState extends State<ArtistasPage> {
 
   @override
   void dispose() {
-    _audioPlayer.stop();
     _audioPlayer.dispose();
     super.dispose();
   }
 
-  Future<void> reproducir(String path) async {
+  Future<void> reproducir(String url) async {
     try {
-      if (_reproduciendo == path && _playerState == PlayerState.playing) {
+      if (_reproduciendo == url && _estaReproduciendo) {
         await pausar();
         return;
       }
 
       await _audioPlayer.stop();
-      if (!mounted) return;
-      setState(() => _reproduciendo = path);
+      await _audioPlayer.setUrl(url);
+      await _audioPlayer.play();
 
-      await _audioPlayer.play(AssetSource(path));
-
-      _audioPlayer.onPlayerComplete.listen((_) {
-        if (mounted) {
-          setState(() => _reproduciendo = null);
-        }
+      setState(() {
+        _reproduciendo = url;
+        _estaReproduciendo = true;
       });
     } catch (e) {
-      print('Error al reproducir $path: $e');
+      print('Error al reproducir $url: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al reproducir audio: $e')),
@@ -60,13 +59,15 @@ class _ArtistasPageState extends State<ArtistasPage> {
 
   Future<void> pausar() async {
     await _audioPlayer.pause();
+    setState(() => _estaReproduciendo = false);
   }
 
   Future<void> detener() async {
     await _audioPlayer.stop();
-    if (mounted) {
-      setState(() => _reproduciendo = null);
-    }
+    setState(() {
+      _estaReproduciendo = false;
+      _reproduciendo = null;
+    });
   }
 
   @override
@@ -83,14 +84,14 @@ class _ArtistasPageState extends State<ArtistasPage> {
             nombre: 'Néstor Garnica',
             descripcion: 'Violinista y cantante de folclore argentino.',
             imagen: 'lib/assets/images/nestor.png',
-            audio: 'audio/nestor.mp3',
+            audio: 'https://relaxed-boba-618c06.netlify.app/audio/nestor.mp3',
           ),
           const SizedBox(height: 10),
           buildArtistaCard(
             nombre: 'Dany Hoyos',
             descripcion: 'Es marca registrada en el género de la guaracha.',
             imagen: 'lib/assets/images/dani.png',
-            audio: 'audio/dani.mp3',
+            audio: 'https://relaxed-boba-618c06.netlify.app/audio/dani.mp3',
           ),
           const SizedBox(height: 10),
           buildArtistaCard(
@@ -98,7 +99,7 @@ class _ArtistasPageState extends State<ArtistasPage> {
             descripcion:
                 'Una fusión única de ritmos santiagueños y melodías francesas.',
             imagen: 'lib/assets/images/monde.png',
-            audio: 'audio/monde.mp3',
+            audio: 'https://relaxed-boba-618c06.netlify.app/audio/monde.mp3',
           ),
         ],
       ),
@@ -111,7 +112,8 @@ class _ArtistasPageState extends State<ArtistasPage> {
     required String imagen,
     required String audio,
   }) {
-    final bool estaReproduciendo = _reproduciendo == audio;
+    final bool estaReproduciendoEste =
+        _reproduciendo == audio && _estaReproduciendo;
 
     return Card(
       elevation: 6,
@@ -176,11 +178,10 @@ class _ArtistasPageState extends State<ArtistasPage> {
                     children: [
                       IconButton(
                         icon: Icon(
-                          estaReproduciendo &&
-                                  _playerState == PlayerState.playing
+                          estaReproduciendoEste
                               ? Icons.pause_circle_filled
                               : Icons.play_circle_fill,
-                          color: estaReproduciendo
+                          color: estaReproduciendoEste
                               ? const Color.fromARGB(255, 23, 221, 63)
                               : Colors.white,
                           size: 36,
@@ -198,10 +199,7 @@ class _ArtistasPageState extends State<ArtistasPage> {
                       ),
                       const SizedBox(width: 10),
                       AnimatedOpacity(
-                        opacity: estaReproduciendo &&
-                                _playerState == PlayerState.playing
-                            ? 1.0
-                            : 0.0,
+                        opacity: estaReproduciendoEste ? 1.0 : 0.0,
                         duration: const Duration(milliseconds: 300),
                         child: const Icon(
                           Icons.graphic_eq,

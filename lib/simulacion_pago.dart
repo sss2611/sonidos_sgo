@@ -27,7 +27,7 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
   Future<Uint8List> generarPDFBytes() async {
     final pdf = pw.Document();
 
-    // Intentar cargar el logo, pero continuar sin él si falla
+    // Intentara cargar el logo, pero continuar sin él si falla
     pw.ImageProvider? logoImage;
     try {
       final logoData =
@@ -53,7 +53,7 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
             if (logoImage != null)
               pw.Center(child: pw.Image(logoImage, width: 120)),
             pw.SizedBox(height: 16),
-            pw.Text('Sandrix Eventos & Producciones EIRL',
+            pw.Text(r'$andrix Eventos & Producciones EIRL',
                 style:
                     pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 16),
@@ -92,7 +92,7 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
       final bytes = await generarPDFBytes();
       await Printing.sharePdf(
         bytes: bytes,
-        filename: 'comprobante_sandrix.pdf',
+        filename: r'comprobante_$andrix.pdf',
       );
       mostrarSnackBar('Compartido exitosamente por WhatsApp');
     } catch (e) {
@@ -110,7 +110,7 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Simulación de Pago')),
+      appBar: AppBar(title: Text('Pago con Tarjeta')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: pagado
@@ -123,15 +123,15 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
                     SizedBox(height: 16),
                     ElevatedButton.icon(
                       icon: Icon(Icons.picture_as_pdf),
-                      label: Text('Ver/Descargar Comprobante PDF'),
+                      label: Text('Ver/Descargar Comprobante'),
                       onPressed: () async {
                         try {
                           await Printing.layoutPdf(
                             onLayout: (format) => generarPDFBytes(),
                           );
                         } catch (e) {
-                          mostrarSnackBar('No se pudo mostrar el PDF');
-                          print('Error mostrando PDF: $e');
+                          mostrarSnackBar('No se pudo mostrar el comprobante');
+                          print('Error mostrando comprobante: $e');
                         }
                       },
                     ),
@@ -182,11 +182,40 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
                           value!.isEmpty ? 'Ingresá nombre del titular' : null,
                     ),
                     TextFormField(
-                      decoration:
-                          InputDecoration(labelText: 'Vencimiento (MM/AA)'),
+                      decoration: const InputDecoration(
+                          labelText: 'Vencimiento (MM/AA)'),
+                      keyboardType: TextInputType.number,
                       onSaved: (value) => vencimiento = value ?? '',
-                      validator: (value) =>
-                          value!.isEmpty ? 'Ingresá una fecha' : null,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Ingresá una fecha';
+                        }
+
+                        final parts = value.split('/');
+                        if (parts.length != 2) {
+                          return 'Formato inválido. Usá MM/AA';
+                        }
+
+                        final mes = int.tryParse(parts[0]);
+                        final anio = int.tryParse(parts[1]);
+
+                        if (mes == null ||
+                            anio == null ||
+                            mes < 1 ||
+                            mes > 12) {
+                          return 'Mes o año inválido';
+                        }
+
+                        final now = DateTime.now();
+                        final fechaIngresada = DateTime(2000 + anio, mes);
+
+                        if (fechaIngresada
+                            .isBefore(DateTime(now.year, now.month))) {
+                          return 'La fecha ya expiró';
+                        }
+
+                        return null;
+                      },
                     ),
                     TextFormField(
                       decoration:
