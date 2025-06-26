@@ -31,9 +31,7 @@ class MyApp extends StatelessWidget {
 class MyAppState extends ChangeNotifier {}
 
 void launchMaps() async {
-  final Uri uri = Uri.parse(
-    'https://maps.app.goo.gl/Z3GLp7XqevnKNBHQ6',
-  );
+  final Uri uri = Uri.parse('https://maps.app.goo.gl/Z3GLp7XqevnKNBHQ6');
   try {
     if (!await launchUrl(uri, mode: LaunchMode.platformDefault)) {
       throw 'No se pudo abrir el mapa';
@@ -67,67 +65,65 @@ class HexagonClipper extends CustomClipper<Path> {
 
 Widget hexButton(String label, IconData icon, VoidCallback onPressed,
     {bool textBeforeIcon = false}) {
-  List<Widget> content = [
-    if (textBeforeIcon)
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: Color.fromARGB(255, 41, 19, 130),
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    ClipPath(
-      clipper: HexagonClipper(),
-      child: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(0, 72, 73, 135),
-          boxShadow: [
-            BoxShadow(
-              color: const Color.fromARGB(255, 211, 199, 199).withAlpha(77),
-              blurRadius: 10,
-              offset: Offset(4, 4),
-            ),
-          ],
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 208, 5, 5).withAlpha(26),
-          ),
-          child: Center(
-            child: Icon(
-              icon,
-              size: 36,
-              color: const Color.fromARGB(255, 189, 12, 12),
-            ),
-          ),
-        ),
-      ),
-    ),
-    if (!textBeforeIcon)
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: Color.fromARGB(255, 41, 19, 130),
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-  ];
-
   return GestureDetector(
     onTap: onPressed,
     child: Row(
       mainAxisSize: MainAxisSize.min,
-      children: content,
+      children: [
+        if (textBeforeIcon)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Color.fromARGB(255, 41, 19, 130),
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ClipPath(
+          clipper: HexagonClipper(),
+          child: Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(0, 72, 73, 135),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color.fromARGB(255, 211, 199, 199).withAlpha(77),
+                  blurRadius: 10,
+                  offset: const Offset(4, 4),
+                ),
+              ],
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 208, 5, 5).withAlpha(26),
+              ),
+              child: Center(
+                child: Icon(
+                  icon,
+                  size: 36,
+                  color: const Color.fromARGB(255, 189, 12, 12),
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (!textBeforeIcon)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Color.fromARGB(255, 41, 19, 130),
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+      ],
     ),
   );
 }
@@ -143,7 +139,7 @@ class MyHomePage extends StatelessWidget {
               context,
               MaterialPageRoute(builder: (context) => ArtistasPage()),
             ),
-        'textBeforeIcon': true, // texto antes del ícono
+        'textBeforeIcon': true,
       },
       {
         'icon': Icons.local_activity,
@@ -170,6 +166,10 @@ class MyHomePage extends StatelessWidget {
               "lib/assets/images/festival3.png",
               fit: BoxFit.cover,
               alignment: Alignment.center,
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: Colors.grey[200],
+                child: const Center(child: Text("Imagen no encontrada")),
+              ),
             ),
           ),
           SafeArea(
@@ -178,17 +178,17 @@ class MyHomePage extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 1, left: 12, right: 12),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: List.generate(botones.length, (i) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: hexButton(
-                        botones[i]['label'],
-                        botones[i]['icon'],
-                        botones[i]['action'],
-                        textBeforeIcon: botones[i]['textBeforeIcon'] ?? false,
-                      ),
-                    );
-                  }),
+                  children: botones
+                      .map((boton) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: hexButton(
+                              boton['label'],
+                              boton['icon'],
+                              boton['action'],
+                              textBeforeIcon: boton['textBeforeIcon'] ?? false,
+                            ),
+                          ))
+                      .toList(),
                 ),
               ),
             ),
@@ -210,6 +210,11 @@ class MyHomePage extends StatelessWidget {
                 'lib/assets/logos/lohany.jpg',
                 width: 60,
                 height: 60,
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                  Icons.broken_image,
+                  size: 60,
+                  color: Colors.grey,
+                ),
               ),
             ),
           ),

@@ -11,7 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  just_audio: ^0.9.36
+  just_audio: ^0.10.4
     
 
   english_words: ^4.0.0
@@ -20,15 +20,15 @@ dependencies:
   pdf: ^3.10.4
   printing: ^5.11.0
   path_provider: ^2.0.14
-  share_plus: ^7.0.2
+  share_plus: ^11.0.0
   font_awesome_flutter: ^10.7.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.4
 
-  flutter_lints: ^2.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true

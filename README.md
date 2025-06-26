@@ -16,8 +16,8 @@ For help getting started with Flutter development, view the
 samples, guidance on mobile development, and a full API reference.
 
 
-# emulación en el celular 
-modo debbuger activado en el celular 
+# emulación en el celular
+modo debbuger activado en el celular
 - paso1: adb devices
  
 - paso2: adb tcpip 5555
