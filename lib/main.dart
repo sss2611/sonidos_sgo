@@ -1,76 +1,113 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
+// 📦 Estas son las librerías que usamos para construir la app
+import 'package:flutter/material.dart'; // Herramientas visuales de Flutter
+import 'package:provider/provider.dart'; // Para manejar estado entre pantallas
+import 'package:url_launcher/url_launcher.dart'; // Para abrir enlaces externos, como Google Maps
+
+// 🔄 Importamos pantallas que creaste (deben estar en archivos .dart separados)
 import 'artistas.dart';
 import 'entradas.dart';
 
+
+// 🚀 Aquí comienza la ejecución de la aplicación Flutter
 void main() {
-  runApp(const MyApp());
+  runApp(const MyApp()); // Este método lanza tu aplicación y muestra el widget MyApp
 }
 
+
+// 🏗️ Este es el widget principal (raíz) de toda tu app
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key}); // Constructor con clave opcional (recomendado para buenas prácticas)
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Sonidos SGO',
-        theme: ThemeData(
+    return ChangeNotifierProvider( // 🔁 Esto permite compartir datos en la app si querés usar Provider
+      create: (context) => MyAppState(), // Instancia de un objeto de estado (vacío por ahora)
+      child: MaterialApp( // 📱 Este widget configura la app entera
+        title: 'Sonidos SGO', // Nombre de la app
+        theme: ThemeData( // Tema de colores y estilos
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
-        home: MyHomePage(),
-        debugShowCheckedModeBanner: false,
+        home: MyHomePage(), // Página principal que se muestra al iniciar la app
+        debugShowCheckedModeBanner: false, // Quita la banderita de "Debug" en la esquina
       ),
     );
   }
 }
 
+
+// 💾 Esta clase representa el estado global de la app (a futuro podés agregar datos aquí)
 class MyAppState extends ChangeNotifier {}
 
+
+// 📍 Esta función abre Google Maps con una ubicación
 void launchMaps() async {
-  final Uri uri = Uri.parse('https://maps.app.goo.gl/Z3GLp7XqevnKNBHQ6');
+  final Uri uri = Uri.parse('https://maps.app.goo.gl/Z3GLp7XqevnKNBHQ6'); // URL del mapa
   try {
     if (!await launchUrl(uri, mode: LaunchMode.platformDefault)) {
-      throw 'No se pudo abrir el mapa';
+      throw 'No se pudo abrir el mapa'; // Si falla, lanza un error
     }
   } catch (e) {
     print('Error al abrir el mapa: $e');
   }
 }
 
+// Define una clase personalizada para recortar widgets en forma de hexágono
 class HexagonClipper extends CustomClipper<Path> {
+  // Este método genera la figura (Path) del hexágono que se usará para recortar
   @override
   Path getClip(Size size) {
+    // Guarda el ancho total del widget que se va a recortar
     final w = size.width;
+
+    // Guarda la altura total del widget que se va a recortar
     final h = size.height;
+
+    // Calcula la mitad del ancho, que será el centro horizontal
     final dx = w / 2;
+
+    // Calcula un cuarto de la altura, para definir la forma vertical del hexágono
     final dy = h / 4;
 
+    // 🔷 Aquí se crea el camino (Path) que forma el hexágono:
     return Path()
+      // Mueve el punto inicial al vértice superior central
       ..moveTo(dx, 0)
+
+      // Dibuja línea al vértice superior derecho
       ..lineTo(w, dy)
+
+      // Dibuja línea hacia el vértice inferior derecho
       ..lineTo(w, dy * 3)
+
+      // Línea al vértice inferior central
       ..lineTo(dx, h)
+
+      // Línea al vértice inferior izquierdo
       ..lineTo(0, dy * 3)
+
+      // Línea al vértice superior izquierdo
       ..lineTo(0, dy)
+
+      // Cierra el camino uniendo el último punto con el primero
       ..close();
   }
 
+  // Este método determina si se debe volver a recortar si algo cambia
+  // En este caso no cambia, así que devuelve false para evitar recalcular
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
 
+// 🔘 Esta función crea un botón con forma de hexágono, ícono y texto
 Widget hexButton(String label, IconData icon, VoidCallback onPressed,
     {bool textBeforeIcon = false}) {
-  return GestureDetector(
-    onTap: onPressed,
-    child: Row(
+  return GestureDetector( // Detecta toques en pantalla
+    onTap: onPressed, // Ejecuta acción al tocar
+    child: Row( // Organiza el texto e ícono en una fila
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (textBeforeIcon)
+        if (textBeforeIcon) // Muestra texto antes del ícono si está activado
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
@@ -82,7 +119,7 @@ Widget hexButton(String label, IconData icon, VoidCallback onPressed,
               ),
             ),
           ),
-        ClipPath(
+        ClipPath( // Recorta la forma del hexágono
           clipper: HexagonClipper(),
           child: Container(
             width: 50,
@@ -101,7 +138,7 @@ Widget hexButton(String label, IconData icon, VoidCallback onPressed,
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 208, 5, 5).withAlpha(26),
               ),
-              child: Center(
+              child: Center( // Centra el ícono dentro del hexágono
                 child: Icon(
                   icon,
                   size: 36,
@@ -111,7 +148,7 @@ Widget hexButton(String label, IconData icon, VoidCallback onPressed,
             ),
           ),
         ),
-        if (!textBeforeIcon)
+        if (!textBeforeIcon) // Muestra texto después del ícono si corresponde
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
@@ -128,16 +165,19 @@ Widget hexButton(String label, IconData icon, VoidCallback onPressed,
   );
 }
 
+
+// 🏠 Esta es la pantalla principal que ve el usuario al entrar en la app
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // 🔘 Lista con los botones del menú principal
     final List<Map<String, dynamic>> botones = [
       {
         'icon': Icons.person,
         'label': 'Artistas',
         'action': () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ArtistasPage()),
+              MaterialPageRoute(builder: (context) => ArtistasPage()), // Navega a la pantalla de artistas
             ),
         'textBeforeIcon': true,
       },
@@ -146,21 +186,22 @@ class MyHomePage extends StatelessWidget {
         'label': 'Entradas',
         'action': () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => CronogramaPage()),
+              MaterialPageRoute(builder: (context) => CronogramaPage()), // Navega a cronograma/entradas
             ),
         'textBeforeIcon': false,
       },
       {
         'icon': Icons.location_on,
         'label': 'Ubicación',
-        'action': () => launchMaps(),
+        'action': () => launchMaps(), // Abre Google Maps
         'textBeforeIcon': true,
       },
     ];
 
-    return Scaffold(
-      body: Stack(
+    return Scaffold( // 🖼️ Define la estructura de la pantalla
+      body: Stack( // Permite apilar widgets unos sobre otros
         children: [
+          // 📷 Imagen de fondo
           SizedBox.expand(
             child: Image.asset(
               "lib/assets/images/festival3.png",
@@ -172,6 +213,7 @@ class MyHomePage extends StatelessWidget {
               ),
             ),
           ),
+          // 🔘 Botones centrales (Artistas, Entradas, Ubicación)
           SafeArea(
             child: Center(
               child: Padding(
@@ -193,13 +235,13 @@ class MyHomePage extends StatelessWidget {
               ),
             ),
           ),
+          // 📌 Logo flotante en la esquina inferior derecha que abre una web al tocarse
           Positioned(
             bottom: 20,
             right: 20,
             child: GestureDetector(
               onTap: () async {
-                final Uri url =
-                    Uri.parse('https://sss2611.github.io/TP2_Programacion3/');
+                final Uri url = Uri.parse('https://sss2611.github.io/TP2_Programacion3/');
                 if (await canLaunchUrl(url)) {
                   await launchUrl(url, mode: LaunchMode.externalApplication);
                 } else {
