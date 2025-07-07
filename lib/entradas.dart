@@ -1,7 +1,7 @@
-// Importa los componentes visuales de Flutter
+// Importo los componentes visuales de Flutter
 import 'package:flutter/material.dart';
 
-// Importa la pantalla de simulación de pago (debes tener este archivo en tu proyecto)
+// Importo la pantalla de simulación de pago
 import 'simulacion_pago.dart';
 
 // Esta clase representa la pantalla del cronograma del festival

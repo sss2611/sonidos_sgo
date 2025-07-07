@@ -3,26 +3,26 @@ import 'package:flutter/material.dart'; // Herramientas visuales de Flutter
 import 'package:provider/provider.dart'; // Para manejar estado entre pantallas
 import 'package:url_launcher/url_launcher.dart'; // Para abrir enlaces externos, como Google Maps
 
-// 🔄 Importamos pantallas que creaste (deben estar en archivos .dart separados)
+// 🔄 Importao pantallas que cree (estan en archivos .dart separados)
 import 'artistas.dart';
 import 'entradas.dart';
 
 
 // 🚀 Aquí comienza la ejecución de la aplicación Flutter
 void main() {
-  runApp(const MyApp()); // Este método lanza tu aplicación y muestra el widget MyApp
+  runApp(const MyApp()); // Este método lanza la aplicación y muestra el widget MyApp
 }
 
 
-// 🏗️ Este es el widget principal (raíz) de toda tu app
+// 🏗️ Este es el widget principal (raíz) de toda la app
 class MyApp extends StatelessWidget {
   const MyApp({super.key}); // Constructor con clave opcional (recomendado para buenas prácticas)
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider( // 🔁 Esto permite compartir datos en la app si querés usar Provider
+    return ChangeNotifierProvider( // 🔁 Esto permite compartir datos en la app si quiero usar Provider
       create: (context) => MyAppState(), // Instancia de un objeto de estado (vacío por ahora)
-      child: MaterialApp( // 📱 Este widget configura la app entera
+      child: MaterialApp( // Este widget me configura la app entera
         title: 'Sonidos SGO', // Nombre de la app
         theme: ThemeData( // Tema de colores y estilos
           useMaterial3: true,
@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
 }
 
 
-// 💾 Esta clase representa el estado global de la app (a futuro podés agregar datos aquí)
+// 💾 Esta clase representa el estado global de la app
 class MyAppState extends ChangeNotifier {}
 
 
@@ -52,7 +52,7 @@ void launchMaps() async {
   }
 }
 
-// Define una clase personalizada para recortar widgets en forma de hexágono
+// Definí una clase personalizada para recortar widgets en forma de hexágono
 class HexagonClipper extends CustomClipper<Path> {
   // Este método genera la figura (Path) del hexágono que se usará para recortar
   @override
@@ -69,7 +69,7 @@ class HexagonClipper extends CustomClipper<Path> {
     // Calcula un cuarto de la altura, para definir la forma vertical del hexágono
     final dy = h / 4;
 
-    // 🔷 Aquí se crea el camino (Path) que forma el hexágono:
+    // Aquí se crea el camino (Path) que forma el hexágono:
     return Path()
       // Mueve el punto inicial al vértice superior central
       ..moveTo(dx, 0)
@@ -99,13 +99,13 @@ class HexagonClipper extends CustomClipper<Path> {
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
 
-// 🔘 Esta función crea un botón con forma de hexágono, ícono y texto
+// Esta función crea un botón con forma de hexágono, ícono y texto
 Widget hexButton(String label, IconData icon, VoidCallback onPressed,
     {bool textBeforeIcon = false}) {
   return GestureDetector( // Detecta toques en pantalla
     onTap: onPressed, // Ejecuta acción al tocar
     child: Row( // Organiza el texto e ícono en una fila
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min, //define cuánto espacio ocupa el widget en el eje principal(debe ocupar solo el espacio mínimo necesario para mostrar sus hijos)
       children: [
         if (textBeforeIcon) // Muestra texto antes del ícono si está activado
           Padding(
@@ -115,7 +115,7 @@ Widget hexButton(String label, IconData icon, VoidCallback onPressed,
               style: const TextStyle(
                 color: Color.fromARGB(255, 41, 19, 130),
                 fontSize: 10,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.bold, //negrita
               ),
             ),
           ),
@@ -166,11 +166,12 @@ Widget hexButton(String label, IconData icon, VoidCallback onPressed,
 }
 
 
-// 🏠 Esta es la pantalla principal que ve el usuario al entrar en la app
+// Esta es la pantalla principal que ve el usuario al entrar en la app
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // 🔘 Lista con los botones del menú principal
+
+    // Lista con los botones del menú principal
     final List<Map<String, dynamic>> botones = [
       {
         'icon': Icons.person,
@@ -198,10 +199,10 @@ class MyHomePage extends StatelessWidget {
       },
     ];
 
-    return Scaffold( // 🖼️ Define la estructura de la pantalla
+    return Scaffold( // Define la estructura de la pantalla
       body: Stack( // Permite apilar widgets unos sobre otros
         children: [
-          // 📷 Imagen de fondo
+          // Imagen de fondo
           SizedBox.expand(
             child: Image.asset(
               "lib/assets/images/festival3.png",
@@ -213,7 +214,7 @@ class MyHomePage extends StatelessWidget {
               ),
             ),
           ),
-          // 🔘 Botones centrales (Artistas, Entradas, Ubicación)
+          // Botones centrales (Artistas, Entradas, Ubicación)
           SafeArea(
             child: Center(
               child: Padding(
@@ -235,7 +236,7 @@ class MyHomePage extends StatelessWidget {
               ),
             ),
           ),
-          // 📌 Logo flotante en la esquina inferior derecha que abre una web al tocarse
+          // Logo flotante en la esquina inferior derecha que abre la web del TP2 al tocarse
           Positioned(
             bottom: 20,
             right: 20,

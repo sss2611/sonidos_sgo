@@ -1,45 +1,61 @@
-name: sonidos_sgo
-description: Reto para Programación 3.
+#  es un archivo fundamental en cualquier proyecto Flutter (y también en Dart) es el "corazón" de la configuración del proyecto.
+#  en este archivo van:
 
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+# Nombre, versión y descripción de mi aplicación.
+# Dependencias externas.
+# Recursos del proyecto.
+# Configuraciones del entorno Flutter o Dart: versión mínima requerida, ajustes de compilación.
 
-version: 0.0.1+1
+# Nombre del proyecto
+name: sonidos_sgo  # Identificador interno de la app (no visible para el usuario)
 
+# Breve descripción
+description: Reto para Programación 3.  # Texto descriptivo del proyecto
+
+# Evita publicar en pub.dev
+publish_to: 'none'  # Si querés publicarlo en pub.dev, eliminá esta línea
+
+# Versión del proyecto
+version: 0.0.1+1  # 0.0.1 = versión pública, +1 = número de compilación interna
+
+# Entorno compatible de SDK de Dart
 environment:
-  sdk: '>=2.19.4 <4.0.0'
+  sdk: '>=2.19.4 <4.0.0'  # Dart debe estar entre la versión 2.19.4 y menor que 4.0.0
 
+# Librerías necesarias durante la ejecución
 dependencies:
   flutter:
-    sdk: flutter
-  just_audio: ^0.10.4
-    
+    sdk: flutter  # Incluye el SDK principal de Flutter
 
-  english_words: ^4.0.0
-  provider: ^6.0.0
-  url_launcher: ^6.2.5
-  pdf: ^3.10.4
-  printing: ^5.11.0
-  path_provider: ^2.0.14
-  share_plus: ^11.0.0
-  font_awesome_flutter: ^10.7.0
+  just_audio: ^0.10.4  # Reproduce audio local o en streaming 
+  english_words: ^4.0.0  # Genera palabras aleatorias en inglés 
+  provider: ^6.0.0  # Manejo de estado reactivo y modular 
+  url_launcher: ^6.2.5  # Abre links, emails, números de teléfono desde la app 
+  pdf: ^3.10.4  # Permite crear documentos PDF 
+  printing: ^5.11.0  # Imprime documentos PDF desde la app 
+  path_provider: ^2.0.14  # Accede a directorios del sistema (archivos locales) 
+  share_plus: ^11.0.0  # Comparte contenido (texto, archivos, etc.) con otras apps 
+  font_awesome_flutter: ^10.7.0  # Usa íconos de FontAwesome 
 
+# Librerías necesarias para el desarrollo (no se incluyen en producción)
 dev_dependencies:
   flutter_test:
-    sdk: flutter
-  flutter_launcher_icons: ^0.14.4
+    sdk: flutter  # Para escribir y ejecutar pruebas (testing) 
+  flutter_launcher_icons: ^0.14.4  # Crea íconos automáticamente para Android/iOS 
+  flutter_lints: ^6.0.0  # Reglas de estilo para mantener el código limpio y ordenado 
 
-  flutter_lints: ^6.0.0
-
+# Configuración visual y multimedia
 flutter:
-  uses-material-design: true
-  assets:
-    - lib/assets/images/
-    - lib/assets/audio/
-    - lib/assets/logos/
+  uses-material-design: true  # Activa el diseño Material Design (estilo nativo de Flutter)
+  assets:  # Registra carpetas de recursos que vas a usar dentro de tu app
+    - lib/assets/images/  # Imágenes como botones, fondos, ilustraciones
+    - lib/assets/audio/  # Archivos de sonido a reproducir
+    - lib/assets/logos/  # Logos de la app o instituciones
 
+# Configuración personalizada de íconos de la aplicación
 flutter_launcher_icons:
-  android: true
-  ios: false
-  image_path: "lib/assets/logos/colorida.png"
-  adaptive_icon_background: "#221AB7FF"
-  adaptive_icon_foreground: "lib/assets/logos/colorida.png"
+  android: true  # Genera íconos para Android
+  ios: false  # No genera íconos para iOS (lo podés activar si lo necesitás)
+  image_path: "lib/assets/logos/colorida.png"  # Ruta al ícono principal
+  adaptive_icon_background: "#221AB7FF"  # Color de fondo del ícono adaptativo
+  adaptive_icon_foreground: "lib/assets/logos/colorida.png"  # Imagen sobre el fondo adaptativo

@@ -59,13 +59,13 @@ class _ArtistasPageState extends State<ArtistasPage> {
       await _audioPlayer.setUrl(url);
       await _audioPlayer.play();
 
-      // Actualizamos el estado
+      // Actualiza el estado
       setState(() {
         _reproduciendo = url;
         _estaReproduciendo = true;
       });
     } catch (e) {
-      // Mostramos un error si algo falla
+      // Muestra un error si algo falla
       print('Error al reproducir $url: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
