@@ -2,13 +2,15 @@
 import 'package:flutter/material.dart'; // UI de Flutter
 import 'package:pdf/widgets.dart' as pw; // Para generar documentos PDF
 import 'package:printing/printing.dart'; // Para imprimir o compartir PDF
-import 'package:flutter/services.dart' show rootBundle; // Para cargar archivos locales
+import 'package:flutter/services.dart'
+    show rootBundle; // Para cargar archivos locales
 import 'dart:typed_data'; // Para manipular datos binarios como el PDF
 import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // Íconos personalizados como el de WhatsApp
 
 // Widget principal que representa la pantalla de simulación de pago
 class SimulacionPagoPage extends StatefulWidget {
-  final Map<String, String> entrada; // Información de la entrada (tipo, precio, beneficio)
+  final Map<String, String>
+      entrada; // Información de la entrada (tipo, precio, beneficio)
 
   SimulacionPagoPage({required this.entrada});
 
@@ -56,14 +58,16 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
     // Carga el logo del evento desde los assets
     pw.ImageProvider? logoImage;
     try {
-      final logoData = await rootBundle.load('lib/assets/logos/sandrixEIRL.jpg');
+      final logoData =
+          await rootBundle.load('lib/assets/logos/sandrixEIRL.jpg');
       logoImage = pw.MemoryImage(logoData.buffer.asUint8List());
     } catch (e) {
       print('Logo no encontrado o error cargando: $e');
     }
 
     // Prepara los datos para mostrar en el comprobante
-    final numeroFinal = numero.length >= 4 ? numero.substring(numero.length - 4) : '****';
+    final numeroFinal =
+        numero.length >= 4 ? numero.substring(numero.length - 4) : '****';
     final nombreFinal = nombre.isNotEmpty ? nombre : 'Nombre no especificado';
     final tipoEntrada = widget.entrada['tipo'] ?? 'Entrada no definida';
     final precioEntrada = widget.entrada['precio'] ?? '---';
@@ -79,7 +83,8 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
               pw.Center(child: pw.Image(logoImage, width: 120)),
             pw.SizedBox(height: 16),
             pw.Text(r'$andrix Eventos & Producciones EIRL',
-                style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+                style:
+                    pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 16),
             pw.Text('Comprobante de Pago'),
             pw.Divider(),
@@ -101,7 +106,8 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
   // Muestra un mensaje en pantalla (snack bar)
   void mostrarSnackBar(String mensaje) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mensaje)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(mensaje)));
   }
 
   // Comparte el PDF por WhatsApp (o lo que permita el dispositivo)
@@ -136,110 +142,128 @@ class _SimulacionPagoPageState extends State<SimulacionPagoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Pago con Tarjeta')),
+        appBar: AppBar(title: Text('Pago con Tarjeta')),
+        body: Padding(
+            padding: const EdgeInsets.all(16.0),
 
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+            // Si ya se realizó el pago, se muestra un mensaje de éxito
+            child: pagado
+                ? SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Text('🎉 ¡Pago Exitoso!',
+                            style: TextStyle(
+                                fontSize: 22, fontWeight: FontWeight.bold)),
+                        SizedBox(height: 16),
 
-        // Si ya se realizó el pago, se muestra un mensaje de éxito
-        child: pagado
-            ? SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Text('🎉 ¡Pago Exitoso!',
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 16),
+                        // Botón para ver/descargar el comprobante
+                        ElevatedButton.icon(
+                          icon: Icon(Icons.picture_as_pdf),
+                          label: Text('Ver/Descargar Comprobante'),
+                          onPressed: () async {
+                            try {
+                              await Printing.layoutPdf(
+                                  onLayout: (format) => generarPDFBytes());
+                            } catch (e) {
+                              mostrarSnackBar(
+                                  'No se pudo mostrar el comprobante');
+                            }
+                          },
+                        ),
+                        SizedBox(height: 16),
 
-                    // Botón para ver/descargar el comprobante
-                    ElevatedButton.icon(
-                      icon: Icon(Icons.picture_as_pdf),
-                      label: Text('Ver/Descargar Comprobante'),
-                      onPressed: () async {
-                        try {
-                          await Printing.layoutPdf(onLayout: (format) => generarPDFBytes());
-                        } catch (e) {
-                          mostrarSnackBar('No se pudo mostrar el comprobante');
-                        }
-                      },
+                        // Campo para ingresar número de WhatsApp
+                        TextField(
+                          controller: _whatsappController,
+                          decoration: InputDecoration(
+                            labelText: 'Número de WhatsApp',
+                            prefixIcon: Icon(FontAwesomeIcons.whatsapp,
+                                color: Color(0xFF25D366)),
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.phone,
+                        ),
+                        SizedBox(height: 12),
+
+                        // Botón para compartir el PDF
+                        ElevatedButton.icon(
+                          icon: Icon(Icons.share),
+                          label: Text('Compartir por WhatsApp'),
+                          onPressed: enviarPDFPorWhatsapp,
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 16),
+                  )
 
-                    // Campo para ingresar número de WhatsApp
-                    TextField(
-                      controller: _whatsappController,
-                      decoration: InputDecoration(
-                        labelText: 'Número de WhatsApp',
-                        prefixIcon: Icon(FontAwesomeIcons.whatsapp, color: Color(0xFF25D366)),
-                        border: OutlineInputBorder(),
+                // Si el pago aún no fue hecho, muestra el formulario
+                : Form(
+                    key: _formKey,
+                    child: ListView(children: [
+                      Text('💳 Ingreso de Datos de Tarjeta',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
+                      SizedBox(height: 16),
+                      Text('Pago para: ${widget.entrada['tipo']}'),
+                      SizedBox(height: 16),
+
+                      // Campo número de tarjeta
+                      TextFormField(
+                        decoration:
+                            InputDecoration(labelText: 'Número de Tarjeta'),
+                        keyboardType: TextInputType.number,
+                        onSaved: (value) => numero = value ?? '',
+                        validator: (value) => value!.length < 16
+                            ? 'Debe tener al menos 16 dígitos'
+                            : null,
                       ),
-                      keyboardType: TextInputType.phone,
-                    ),
-                    SizedBox(height: 12),
 
-                    // Botón para compartir el PDF
-                    ElevatedButton.icon(
-                      icon: Icon(Icons.share),
-                      label: Text('Compartir por WhatsApp'),
-                      onPressed: enviarPDFPorWhatsapp,
-                    ),
-                  ],
-                ),
-              )
+                      // Campo nombre del titular
+                      TextFormField(
+                        decoration:
+                            InputDecoration(labelText: 'Nombre del Titular'),
+                        onSaved: (value) => nombre = value ?? '',
+                        validator: (value) => value!.isEmpty
+                            ? 'Ingresá nombre del titular'
+                            : null,
+                      ),
 
-            // Si el pago aún no fue hecho, muestra el formulario
-            : Form(
-                key: _formKey,
-                child: ListView(
-                  children: [
-                    Text('💳 Ingreso de Datos de Tarjeta',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    SizedBox(height: 16),
-                    Text('Pago para: ${widget.entrada['tipo']}'),
-                    SizedBox(height: 16),
+                      // Campo vencimiento con validación de formato MM/AA
+                      TextFormField(
+                        controller: _vencimientoController,
+                        decoration: const InputDecoration(
+                            labelText: 'Vencimiento (MM/AA)'),
+                        keyboardType: TextInputType.number,
+                        onSaved: (value) => vencimiento = value ?? '',
+                        validator: (value) {
+                          if (value == null || value.isEmpty)
+                            // ignore: curly_braces_in_flow_control_structures
+                            return 'Ingresá una fecha';
 
-                    // Campo número de tarjeta
-                    TextFormField(
-                      decoration: InputDecoration(labelText: 'Número de Tarjeta'),
-                      keyboardType: TextInputType.number,
-                      onSaved: (value) => numero = value ?? '',
-                      validator: (value) =>
-                          value!.length < 16 ? 'Debe tener al menos 16 dígitos' : null,
-                    ),
+                          final parts = value.split('/');
+                          if (parts.length != 2)
+                            // ignore: curly_braces_in_flow_control_structures
+                            return 'Formato inválido. Usá MM/AA';
 
-                    // Campo nombre del titular
-                    TextFormField(
-                      decoration: InputDecoration(labelText: 'Nombre del Titular'),
-                      onSaved: (value) => nombre = value ?? '',
-                      validator: (value) =>
-                          value!.isEmpty ? 'Ingresá nombre del titular' : null,
-                    ),
+                          final mes = int.tryParse(parts[0]);
+                          final anio = int.tryParse(parts[1]);
 
-                    // Campo vencimiento con validación de formato MM/AA
-                    TextFormField(
-                      controller: _vencimientoController,
-                      decoration: const InputDecoration(labelText: 'Vencimiento (MM/AA)'),
-                      keyboardType: TextInputType.number,
-                      onSaved: (value) => vencimiento = value ?? '',
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Ingresá una fecha';
+                          if (mes == null ||
+                              anio == null ||
+                              mes < 1 ||
+                              // ignore: curly_braces_in_flow_control_structures
+                              mes > 12) return 'Mes o año inválido';
 
-                        final parts = value.split('/');
-                        if (parts.length != 2) return 'Formato inválido. Usá MM/AA';
+                          final now = DateTime.now();
+                          final fechaIngresada = DateTime(2000 + anio, mes);
 
-                        final mes = int.tryParse(parts[0]);
-                        final anio = int.tryParse(parts[1]);
+                          if (fechaIngresada
+                              .isBefore(DateTime(now.year, now.month)))
+                            // ignore: curly_braces_in_flow_control_structures
+                            return 'La fecha ya expiró';
 
-                        if (mes == null || anio == null || mes < 1 || mes > 12)
-                          return 'Mes o año inválido';
-
-                        final now = DateTime.now();
-                        final fechaIngresada = DateTime(2000 + anio, mes);
-
-                        if (fechaIngresada.isBefore(DateTime(now.year, now.month)))
-                          return 'La fecha ya expiró';
-
-                        return null;
-                      },
-                    ),
-
-                    //
+                          return null;
+                        },
+                      )
+                    ]))));
+  }
+}
